@@ -1,95 +1,103 @@
-import {HomeView} from '../view/HomeView.js';
-import {ProfileView} from '../view/ProfileView.js';
-import {HomeController} from './HomeController.js';
-import {ProfileController} from './ProfileController.js';
-import {Router} from './Router.js';
-import {loginFirebase,logoutFirebase,createAccount} from './firebase_auth.js';
-import {startspinner,stopspinner} from '../view/util.js';
+import { HomeView } from '../view/HomeView.js';
+import { ProfileView } from '../view/ProfileView.js';
+import { HomeController } from './HomeController.js';
+import { ProfileController } from './ProfileController.js';
+import { Router } from './Router.js';
+import { loginFirebase, logoutFirebase, createAccount} from './firebase_auth.js';
+import { startSpinner, stopSpinner } from '../view/util.js';
 
 
-document.getElementById('appHeader').textContent="Cloud Web Templete";
-document.title="App Templete";
+document.getElementById('appHeader').textContent = 'Awesome Message Forum';
+document.title = 'Message Forum';
 
 const routes = [
-    {path: '/', view: HomeView, controller: HomeController},
-    {path: '/profile', view: ProfileView, controller: ProfileController}
+    {path : '/', view : HomeView, controller: HomeController},
+    {path : '/profile', view : ProfileView, controller: ProfileController}
 ];
 
+// create an instance of Router 
 export const router = new Router(routes);
-
 router.navigate(window.location.pathname);
 
 const menuItems = document.querySelectorAll('a[data-path]');
 menuItems.forEach(item => {
-    item.onclick = function(e){
+    item.onclick = function(e) {
         const path = item.getAttribute('data-path');
         router.navigate(path);
     }
 });
 
-document.forms.loginForm.onsubmit = async function(e){
-    e.preventDefault();
+//login form
+document.forms.loginForm.onsubmit = async function(e) {
+    e.preventDefault(); //prevent from page reload
     const email = e.target.email.value;
     const password = e.target.password.value;
-    startspinner();
-    try{
+    startSpinner();
+    try {
         await loginFirebase(email, password);
-        stopspinner();
-        console.log('user logged in', email);
-    } catch(e){
-        stopspinner();
+        stopSpinner();
+        console.log('User logged in',email);
+    }
+    catch(e) {
+        stopSpinner();
         console.error('Error logging in', e);
         const errorCode = e.code;
         const errorMessage = e.message;
-        alert('Sign in failed:' + errorCode + ','+ errorMessage);
+        alert('Sign in failed :' + e.code + ' ' + e.message);
     }
-    
 }
 
-document.getElementById('logoutButton').onclick = async function(e){
-    startspinner();
-    try{
+//logout button
+document.getElementById('logoutButton').onclick = async function(e) {
+    startSpinner();
+    try {
         await logoutFirebase();
-        stopspinner();
-        console.log('user logged out');
-    } catch(e){
-        // stopspinner();
+        stopSpinner();
+        console.log('User logged out');
+    }catch(e) {
+        stopSpinner();
         console.error('Error logging out', e);
         const errorCode = e.code;
         const errorMessage = e.message;
-        alert('Sign out failed:' + errorCode + ','+ errorMessage);
+        alert('Sign out failed :' + e.code + ' ' + e.message);
     }
 }
 
-document.forms.CreateAccountForm.onsubmit = async function(e){
-    e.preventDefault();
+//create account event
+document.forms.createAccountForm.onsubmit = async function(e) {
+    e.preventDefault(); //prevent from page reload
     const email = e.target.email.value;
-    const emailConform = e.target.emailConform.value;
-    if(email !== emailConform){
+    const emailConfirm = e.target.emailConfirm.value;
+    if (email !== emailConfirm) {
         alert('Emails do not match');
         return;
     }
     const password = e.target.password.value;
-    // startspinner();
-    try{
+    startSpinner();
+    try {
         await createAccount(email, password);
-        stopspinner();
-        document.getElementById('CreateAccountDiv').classList.replace('d-block','d-none');
-    } catch(e){
-        stopspinner();
-        console.error('Error creating user', e);
+        stopSpinner();
+        document.getElementById('createAccountDiv').classList.replace('d-block', 'd-none');
+    }
+    catch(e) {
+        stopSpinner();
+        console.error('Error creating account', e);
         const errorCode = e.code;
         const errorMessage = e.message;
-        alert('Create account failed:' + errorCode + ','+ errorMessage);
+        alert('Account creation failed :' + e.code + ' ' + e.message);
     }
 }
 
-document.getElementById('gotoCreateAccount').onclick = function(e){
-    document.getElementById('loginDiv').classList.replace('d-block','d-none');
-    document.getElementById('CreateAccountDiv').classList.replace('d-none','d-block');
+//show create account form / hide login form 
+document.getElementById('goToCreateAccount').onclick = function(e) {
+    document.getElementById('loginDiv').classList.replace('d-block', 'd-none');
+    document.getElementById('createAccountDiv').classList.replace('d-none', 'd-block');
+    document.forms.createAccountForm.reset();
 }
 
-document.getElementById('gotoLogin').onclick = function(e){
-    document.getElementById('CreateAccountDiv').classList.replace('d-block','d-none');
-    document.getElementById('loginDiv').classList.replace('d-none','d-block');
+//hide create account form / show login form 
+document.getElementById('goToLogin').onclick = function(e) {
+    document.getElementById('createAccountDiv').classList.replace('d-block', 'd-none');
+    document.getElementById('loginDiv').classList.replace('d-none', 'd-block');
 }
+

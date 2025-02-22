@@ -1,3 +1,3 @@
-export class ProfileModel {
-
+export class ProfileModel{
+    
 }
